@@ -41,6 +41,8 @@
 
 
         this.lastRuntime = [];
+
+        this.isRunning = false;
     };
 
     Icinga.Timer.prototype = {
@@ -49,8 +51,16 @@
          * The initialization function starts our ticker
          */
         initialize: function () {
-            var _this = this;
-            this.ticker = setInterval(function () { _this.tick(); }, this.interval);
+            this.isRunning = true;
+
+            var that = this;
+            var f = function () {
+                if (that.isRunning) {
+                    that.tick();
+                    setTimeout(f, that.interval);
+                }
+            };
+            f();
         },
 
         /**
@@ -112,6 +122,7 @@
          * Our destroy function will clean up everything. Unused right now.
          */
         destroy: function () {
+            this.isRunning = false;
 
             if (this.ticker !== null) {
                 clearInterval(this.ticker);
